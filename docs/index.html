@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UO Athletics — Transformational Prospect Intelligence</title>
+  <style>
+    :root {
+      --green: #154734;
+      --green-dark: #0d2e22;
+      --green-mid: #1e6348;
+      --gold: #FEE123;
+      --gold-dark: #d4bc0f;
+      --white: #ffffff;
+      --gray-light: #f4f4f0;
+      --gray: #e5e5e0;
+      --gray-mid: #999;
+      --text: #1a1a1a;
+      --tier1: #8B0000;
+      --tier2: #154734;
+      --tier3: #1a5276;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--gray-light);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--green-dark);
+      color: var(--white);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .duck-logo {
+      width: 48px;
+      height: 48px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .header-title h1 {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+
+    .header-title p {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      font-family: 'Arial', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .header-meta {
+      text-align: right;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .header-meta .last-run {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .header-meta .next-run {
+      font-size: 0.72rem;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      background: var(--green);
+      color: var(--white);
+      padding: 12px 24px;
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 8px 28px;
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--gold);
+      font-family: 'Arial', sans-serif;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Arial', sans-serif;
+      margin-top: 3px;
+    }
+
+    /* MAIN LAYOUT */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* CONTROLS */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 220px;
+      padding: 10px 16px;
+      border: 2px solid var(--gray);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Arial', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .filter-btn {
+      padding: 10px 18px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: 'Arial', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    .filter-btn.all { background: var(--green); color: var(--white); border-color: var(--green); }
+    .filter-btn.tier1 { background: var(--tier1); color: var(--white); border-color: var(--tier1); }
+    .filter-btn.tier2 { background: var(--tier2); color: var(--white); border-color: var(--tier2); }
+    .filter-btn.tier3 { background: var(--tier3); color: var(--white); border-color: var(--tier3); }
+    .filter-btn.inactive { background: var(--white); color: var(--gray-mid); border-color: var(--gray); }
+    .filter-btn:hover { opacity: 0.85; }
+
+    /* SORT */
+    .sort-select {
+      padding: 10px 14px;
+      border: 2px solid var(--gray);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: 'Arial', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    /* PROSPECT GRID */
+    .prospect-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 20px;
+    }
+
+    /* PROSPECT CARD */
+    .prospect-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--gray);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prospect-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+    }
+
+    .card-header {
+      padding: 16px 20px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .card-header.tier-1 { background: linear-gradient(135deg, #8B0000 0%, #a00000 100%); color: white; }
+    .card-header.tier-2 { background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%); color: white; }
+    .card-header.tier-3 { background: linear-gradient(135deg, #1a5276 0%, #2471a3 100%); color: white; }
+
+    .card-name {
+      font-size: 1.15rem;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+
+    .card-role {
+      font-size: 0.78rem;
+      opacity: 0.8;
+      margin-top: 4px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .tier-badge {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.3);
+      flex-shrink: 0;
+    }
+
+    .card-body {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .info-icon {
+      font-size: 0.85rem;
+      margin-top: 1px;
+      flex-shrink: 0;
+      width: 18px;
+    }
+
+    .info-content {}
+
+    .info-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--gray-mid);
+      font-family: 'Arial', sans-serif;
+      margin-bottom: 1px;
+    }
+
+    .info-value {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.4;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .capacity-highlight {
+      background: var(--gold);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .capacity-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--green-dark);
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+    }
+
+    .capacity-value {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: var(--green-dark);
+      font-family: 'Arial', sans-serif;
+    }
+
+    .why-prospect {
+      background: var(--gray-light);
+      border-left: 3px solid var(--green);
+      padding: 10px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.85rem;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.5;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .urgency-flag {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: #856404;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .urgency-flag::before { content: "⚡ "; }
+
+    .card-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--gray);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafafa;
+    }
+
+    .confidence-badge {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+    }
+
+    .confidence-HIGH { background: #d4edda; color: #155724; }
+    .confidence-MEDIUM { background: #fff3cd; color: #856404; }
+    .confidence-LOW { background: #f8d7da; color: #721c24; }
+
+    .updated-date {
+      font-size: 0.7rem;
+      color: var(--gray-mid);
+      font-family: 'Arial', sans-serif;
+    }
+
+    .sources-list {
+      font-size: 0.75rem;
+      color: var(--gray-mid);
+      font-family: 'Arial', sans-serif;
+    }
+
+    .sources-list a {
+      color: var(--green-mid);
+      text-decoration: none;
+    }
+
+    .sources-list a:hover { text-decoration: underline; }
+
+    /* DETAIL EXPAND */
+    .expand-btn {
+      background: none;
+      border: none;
+      color: var(--green-mid);
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: 'Arial', sans-serif;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .detail-section {
+      display: none;
+      padding: 12px 20px;
+      border-top: 1px dashed var(--gray);
+      background: #fafafa;
+      gap: 10px;
+      flex-direction: column;
+    }
+
+    .detail-section.open { display: flex; }
+
+    /* NO RESULTS */
+    .no-results {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-mid);
+      font-family: 'Arial', sans-serif;
+    }
+
+    .no-results h3 { font-size: 1.3rem; margin-bottom: 8px; }
+
+    /* LOADING */
+    .loading-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--gray);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* EMPTY STATE */
+    .empty-state {
+      grid-column: 1/-1;
+      background: var(--white);
+      border: 2px dashed var(--gray);
+      border-radius: 12px;
+      padding: 60px 32px;
+      text-align: center;
+    }
+
+    .empty-state h2 {
+      color: var(--green);
+      margin-bottom: 12px;
+      font-size: 1.4rem;
+    }
+
+    .empty-state p {
+      color: var(--gray-mid);
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* RESULTS COUNT */
+    .results-count {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.85rem;
+      color: var(--gray-mid);
+      margin-bottom: 12px;
+    }
+
+    /* CONFIDENTIAL FOOTER */
+    footer {
+      background: var(--green-dark);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 20px;
+      font-size: 0.75rem;
+      font-family: 'Arial', sans-serif;
+      margin-top: 40px;
+      letter-spacing: 0.5px;
+    }
+
+    footer strong { color: var(--gold); }
+
+    @media (max-width: 600px) {
+      .prospect-grid { grid-template-columns: 1fr; }
+      .stats-bar { gap: 0; }
+      .stat-item { padding: 8px 16px; }
+      .stat-number { font-size: 1.4rem; }
+      .header-title h1 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="duck-logo">🦆</div>
+      <div class="header-title">
+        <h1>UO Athletics — Transformational Prospect Intelligence</h1>
+        <p>Forever Ducks Major Gift Pipeline &nbsp;·&nbsp; Confidential</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="last-run" id="last-run-display">Loading...</div>
+      <div class="next-run" id="next-run-display"></div>
+    </div>
+  </div>
+</header>
+
+<div class="stats-bar" id="stats-bar">
+  <div class="stat-item">
+    <div class="stat-number" id="stat-total">—</div>
+    <div class="stat-label">Total Prospects</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" id="stat-tier1">—</div>
+    <div class="stat-label">Tier 1 &gt;$25M</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" id="stat-tier2">—</div>
+    <div class="stat-label">Tier 2 $10-25M</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" id="stat-tier3">—</div>
+    <div class="stat-label">Tier 3 $5-10M</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" id="stat-runs">—</div>
+    <div class="stat-label">Research Runs</div>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="controls">
+    <input
+      type="text"
+      class="search-box"
+      id="search-input"
+      placeholder="Search by name, company, location, industry..."
+      oninput="filterProspects()"
+    />
+    <button class="filter-btn all" onclick="setFilter('ALL', this)">All</button>
+    <button class="filter-btn tier1 inactive" onclick="setFilter('TIER_1_TRANSFORMATIONAL', this)">Tier 1: Transformational</button>
+    <button class="filter-btn tier2 inactive" onclick="setFilter('TIER_2_PRINCIPAL', this)">Tier 2: Principal</button>
+    <button class="filter-btn tier3 inactive" onclick="setFilter('TIER_3_MAJOR', this)">Tier 3: Major</button>
+    <select class="sort-select" id="sort-select" onchange="sortProspects()">
+      <option value="tier">Sort: By Tier</option>
+      <option value="name">Sort: Name A-Z</option>
+      <option value="recent">Sort: Most Recent</option>
+      <option value="confidence">Sort: Confidence</option>
+    </select>
+  </div>
+
+  <div class="results-count" id="results-count"></div>
+
+  <div class="prospect-grid" id="prospect-grid">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p style="font-family: Arial; color: #999;">Loading prospect intelligence...</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <strong>CONFIDENTIAL</strong> &nbsp;·&nbsp; University of Oregon Athletics &nbsp;·&nbsp; Forever Ducks Major Gift Program &nbsp;·&nbsp;
+  Data refreshed daily at 8:00 AM Pacific &nbsp;·&nbsp; For internal use only
+</footer>
+
+<script>
+let allProspects = [];
+let activeFilter = 'ALL';
+
+const TIER_LABELS = {
+  'TIER_1_TRANSFORMATIONAL': 'Tier 1 · Transformational',
+  'TIER_2_PRINCIPAL': 'Tier 2 · Principal',
+  'TIER_3_MAJOR': 'Tier 3 · Major Gift'
+};
+
+const TIER_CLASS = {
+  'TIER_1_TRANSFORMATIONAL': 'tier-1',
+  'TIER_2_PRINCIPAL': 'tier-2',
+  'TIER_3_MAJOR': 'tier-3'
+};
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function buildSourceLinks(sources) {
+  if (!sources || sources.length === 0) return '<em>No sources listed</em>';
+  return sources.map((s, i) => {
+    if (typeof s === 'string' && s.startsWith('http')) {
+      return `<a href="${escapeHtml(s)}" target="_blank" rel="noopener">Source ${i+1}</a>`;
+    }
+    return `<span>${escapeHtml(s)}</span>`;
+  }).join(' &nbsp;·&nbsp; ');
+}
+
+function buildCard(p, idx) {
+  const tier = p.capacity_rating || 'TIER_3_MAJOR';
+  const tierClass = TIER_CLASS[tier] || 'tier-3';
+  const tierLabel = TIER_LABELS[tier] || tier;
+  const conf = p.confidence || 'MEDIUM';
+
+  return `
+    <div class="prospect-card" data-tier="${tier}" data-name="${escapeHtml(p.name)}" data-text="${escapeHtml(JSON.stringify(p)).toLowerCase()}">
+      <div class="card-header ${tierClass}">
+        <div>
+          <div class="card-name">${escapeHtml(p.name)}</div>
+          <div class="card-role">${escapeHtml(p.current_role || '')}</div>
+        </div>
+        <span class="tier-badge">${escapeHtml(tierLabel)}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="capacity-highlight">
+          <div>
+            <div class="capacity-label">Giving Capacity to UO Athletics</div>
+            <div class="capacity-value">${escapeHtml(p.giving_capacity || p.estimated_net_worth || 'See details')}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="capacity-label">Est. Net Worth</div>
+            <div class="capacity-value" style="font-size:0.9rem">${escapeHtml(p.estimated_net_worth || '—')}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">🎓</div>
+          <div class="info-content">
+            <div class="info-label">UO Connection</div>
+            <div class="info-value">${escapeHtml(p.uo_connection || '—')}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">📍</div>
+          <div class="info-content">
+            <div class="info-label">Location</div>
+            <div class="info-value">${escapeHtml(p.location || '—')}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">💼</div>
+          <div class="info-content">
+            <div class="info-label">Wealth Sources</div>
+            <div class="info-value">${escapeHtml(p.wealth_sources || '—')}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">📰</div>
+          <div class="info-content">
+            <div class="info-label">Recent News</div>
+            <div class="info-value">${escapeHtml(p.recent_news || '—')}</div>
+          </div>
+        </div>
+
+        ${p.why_prospect ? `<div class="why-prospect">${escapeHtml(p.why_prospect)}</div>` : ''}
+
+        ${p.urgency_flag && p.urgency_flag.toLowerCase() !== 'none' && p.urgency_flag.toLowerCase() !== 'n/a' && p.urgency_flag.length > 5
+          ? `<div class="urgency-flag">${escapeHtml(p.urgency_flag)}</div>`
+          : ''}
+
+        <button class="expand-btn" onclick="toggleDetail(${idx})">▶ Show full details</button>
+      </div>
+
+      <div class="detail-section" id="detail-${idx}">
+        ${p.athletics_connection ? `
+        <div class="info-row">
+          <div class="info-icon">🏈</div>
+          <div class="info-content">
+            <div class="info-label">Athletics Connection</div>
+            <div class="info-value">${escapeHtml(p.athletics_connection)}</div>
+          </div>
+        </div>` : ''}
+
+        ${p.philanthropy_history ? `
+        <div class="info-row">
+          <div class="info-icon">🤝</div>
+          <div class="info-content">
+            <div class="info-label">Philanthropy History</div>
+            <div class="info-value">${escapeHtml(p.philanthropy_history)}</div>
+          </div>
+        </div>` : ''}
+
+        ${p.engagement_angle ? `
+        <div class="info-row">
+          <div class="info-icon">💬</div>
+          <div class="info-content">
+            <div class="info-label">Engagement Angle</div>
+            <div class="info-value">${escapeHtml(p.engagement_angle)}</div>
+          </div>
+        </div>` : ''}
+
+        <div class="sources-list">
+          <strong>Sources:</strong> ${buildSourceLinks(p.sources)}
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <span class="confidence-badge confidence-${conf}">
+          ${conf === 'HIGH' ? '✓' : conf === 'MEDIUM' ? '~' : '?'} ${conf} Confidence
+        </span>
+        <span class="updated-date">Updated: ${escapeHtml(p.last_updated || '—')}</span>
+      </div>
+    </div>
+  `;
+}
+
+function toggleDetail(idx) {
+  const el = document.getElementById(`detail-${idx}`);
+  const btn = el.previousElementSibling;
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    btn.textContent = '▶ Show full details';
+  } else {
+    el.classList.add('open');
+    btn.textContent = '▼ Hide details';
+  }
+}
+
+function setFilter(tier, btn) {
+  activeFilter = tier;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.add('inactive'));
+  btn.classList.remove('inactive');
+  filterProspects();
+}
+
+function filterProspects() {
+  const query = document.getElementById('search-input').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.prospect-card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const tier = card.dataset.tier;
+    const text = card.dataset.text;
+    const name = card.dataset.name.toLowerCase();
+
+    const matchesTier = activeFilter === 'ALL' || tier === activeFilter;
+    const matchesSearch = !query || text.includes(query) || name.includes(query);
+
+    if (matchesTier && matchesSearch) {
+      card.style.display = '';
+      visible++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  document.getElementById('results-count').textContent =
+    `Showing ${visible} of ${allProspects.length} prospects`;
+}
+
+function sortProspects() {
+  const sortVal = document.getElementById('sort-select').value;
+  const grid = document.getElementById('prospect-grid');
+  const cards = Array.from(grid.querySelectorAll('.prospect-card'));
+
+  const tierOrder = { 'TIER_1_TRANSFORMATIONAL': 0, 'TIER_2_PRINCIPAL': 1, 'TIER_3_MAJOR': 2 };
+  const confOrder = { 'HIGH': 0, 'MEDIUM': 1, 'LOW': 2 };
+
+  cards.sort((a, b) => {
+    const pa = allProspects.find(p => p.name === a.dataset.name) || {};
+    const pb = allProspects.find(p => p.name === b.dataset.name) || {};
+
+    if (sortVal === 'tier') {
+      return (tierOrder[pa.capacity_rating] || 2) - (tierOrder[pb.capacity_rating] || 2);
+    } else if (sortVal === 'name') {
+      return (pa.name || '').localeCompare(pb.name || '');
+    } else if (sortVal === 'recent') {
+      return (pb.last_updated || '').localeCompare(pa.last_updated || '');
+    } else if (sortVal === 'confidence') {
+      return (confOrder[pa.confidence] || 1) - (confOrder[pb.confidence] || 1);
+    }
+    return 0;
+  });
+
+  cards.forEach(c => grid.appendChild(c));
+}
+
+function renderProspects(prospects) {
+  const grid = document.getElementById('prospect-grid');
+
+  if (!prospects || prospects.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <h2>🦆 Prospect Research Launching Soon</h2>
+        <p>
+          The daily research agent has not run yet. Once GitHub Actions runs the search
+          (daily at 8:00 AM Pacific), this dashboard will automatically populate with
+          University of Oregon alumni and supporters who have the capacity to make
+          $5 million+ gifts to Oregon Athletics.
+        </p>
+      </div>`;
+    document.getElementById('results-count').textContent = 'No prospects yet — first run scheduled for 8:00 AM Pacific tomorrow';
+    return;
+  }
+
+  grid.innerHTML = prospects.map((p, i) => buildCard(p, i)).join('');
+  document.getElementById('results-count').textContent = `Showing ${prospects.length} of ${prospects.length} prospects`;
+}
+
+function updateStats(data) {
+  document.getElementById('stat-total').textContent = data.total_prospects || 0;
+  document.getElementById('stat-tier1').textContent = data.tier_1_count || 0;
+  document.getElementById('stat-tier2').textContent = data.tier_2_count || 0;
+  document.getElementById('stat-tier3').textContent = data.tier_3_count || 0;
+  document.getElementById('stat-runs').textContent = (data.run_history || []).length;
+
+  if (data.last_updated) {
+    const d = new Date(data.last_updated);
+    document.getElementById('last-run-display').textContent =
+      'Last updated: ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  document.getElementById('next-run-display').textContent = 'Next refresh: Daily at 8:00 AM Pacific';
+}
+
+async function loadData() {
+  try {
+    const resp = await fetch('prospects.json?v=' + Date.now());
+    if (!resp.ok) throw new Error('Not found');
+    const data = await resp.json();
+    allProspects = data.prospects || [];
+    updateStats(data);
+    renderProspects(allProspects);
+  } catch (e) {
+    allProspects = [];
+    updateStats({ total_prospects: 0, tier_1_count: 0, tier_2_count: 0, tier_3_count: 0, run_history: [] });
+    renderProspects([]);
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>

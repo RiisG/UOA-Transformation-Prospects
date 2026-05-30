@@ -1,0 +1,79 @@
+name: Daily UO Prospect Research
+
+on:
+  schedule:
+    # Runs every day at 8:00 AM Pacific (15:00 UTC)
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+    # Also allows manual trigger from GitHub Actions tab
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r agent/requirements.txt
+
+      - name: Run prospect research agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python agent/search_agent.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "UO Prospect Agent"
+          git config user.email "prospect-agent@uoathletics.edu"
+          git add docs/prospects.json
+          git diff --cached --quiet || git commit -m "Daily prospect update - $(date +'%Y-%m-%d')"
+          git push origin HEAD
+
+      - name: Send email summary
+        if: ${{ secrets.NOTIFICATION_EMAIL != '' && secrets.SMTP_PASSWORD != '' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "🦆 UO Athletics Prospect Update — ${{ github.run_number }} new leads identified"
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: "UO Prospect Intelligence <${{ secrets.SMTP_USERNAME }}>"
+          content_type: text/html
+          body: |
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: #154734; color: white; padding: 24px; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; color: #FEE123; font-size: 1.4rem;">🦆 UO Athletics — Daily Prospect Report</h1>
+                <p style="margin: 6px 0 0; opacity: 0.7; font-size: 0.85rem;">Forever Ducks Major Gift Pipeline · Confidential</p>
+              </div>
+              <div style="background: #f4f4f0; padding: 24px; border-radius: 0 0 8px 8px;">
+                <p style="font-size: 1rem; color: #154734;">Your daily prospect intelligence report is ready.</p>
+                <p>New and updated University of Oregon donor prospects with $5M+ gift capacity have been identified and added to your dashboard.</p>
+                <div style="margin: 20px 0; text-align: center;">
+                  <a href="https://riisg.github.io/uoa-transformation-prospects/"
+                     style="background: #154734; color: #FEE123; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1rem;">
+                    View Full Prospect Dashboard →
+                  </a>
+                </div>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+                <p style="font-size: 0.75rem; color: #999;">
+                  CONFIDENTIAL — University of Oregon Athletics · Forever Ducks Program<br />
+                  This email and its contents are for internal use only. Do not forward.
+                </p>
+              </div>
+            </div>
