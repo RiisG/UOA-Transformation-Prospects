@@ -146,7 +146,7 @@ def run_agent():
 
     response = client.messages.create(
         model="claude-opus-4-8",
-        max_tokens=10000,
+        max_tokens=16000,
         system=SYSTEM_PROMPT,
         tools=[{
             "type": "web_search_20250305",
@@ -156,11 +156,11 @@ def run_agent():
         messages=[{"role": "user", "content": prompt}]
     )
 
+    # Use the last text block — the first is a preamble, the last contains the JSON
     result_text = ""
     for block in response.content:
         if hasattr(block, "type") and block.type == "text":
             result_text = block.text
-            break
 
     if not result_text:
         print("ERROR: No text response from agent")
@@ -187,7 +187,12 @@ def run_agent():
     for p in new_prospects:
         if "last_updated" not in p or not p["last_updated"]:
             p["last_updated"] = today
-        if "capacity_rating" not in p:
+        rating = p.get("capacity_rating", "")
+        if "TIER_1" in rating:
+            p["capacity_rating"] = "TIER_1_TRANSFORMATIONAL"
+        elif "TIER_2" in rating:
+            p["capacity_rating"] = "TIER_2_PRINCIPAL"
+        else:
             p["capacity_rating"] = "TIER_3_MAJOR"
 
     all_prospects, run_entry = merge_and_save(new_prospects, existing_prospects, run_history)
