@@ -215,11 +215,22 @@ def run_agent():
 
     try:
         start = result_text.find("[")
-        end = result_text.rfind("]") + 1
-        if start < 0 or end <= start:
+        if start < 0:
             print("ERROR: Could not find JSON array in response")
             print("Raw response (first 1000 chars):", result_text[:1000])
             sys.exit(1)
+
+        # Walk forward to find the matching closing bracket
+        depth = 0
+        end = start
+        for i, ch in enumerate(result_text[start:], start):
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
 
         json_str = result_text[start:end]
         new_prospects = json.loads(json_str)
