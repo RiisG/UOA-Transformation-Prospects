@@ -520,12 +520,118 @@
 
     footer strong { color: var(--gold); }
 
+    /* TABS */
+    .tab-bar {
+      background: var(--green-dark);
+      display: flex;
+      max-width: 100%;
+      border-bottom: 3px solid var(--gold);
+    }
+    .tab-btn {
+      padding: 14px 28px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+    }
+    .tab-btn:hover { color: white; }
+    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* CORPORATE CARDS */
+    .corp-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--gray);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .corp-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.14); }
+
+    .corp-header { padding: 16px 20px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .corp-header.naming  { background: linear-gradient(135deg, #4a0080 0%, #6a00b0 100%); color: white; }
+    .corp-header.presenting { background: linear-gradient(135deg, #8B0000 0%, #a00000 100%); color: white; }
+    .corp-header.premier { background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%); color: white; }
+    .corp-header.associate { background: linear-gradient(135deg, #1a5276 0%, #2471a3 100%); color: white; }
+
+    .corp-company { font-size: 1.15rem; font-weight: bold; line-height: 1.2; }
+    .corp-leader  { font-size: 0.78rem; opacity: 0.85; margin-top: 3px; font-family: Arial, sans-serif; }
+    .corp-tier-badge {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.3);
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .bball-corp-badge {
+      display: inline-block;
+      background: #e65c00;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .value-prop {
+      background: #f0f7f0;
+      border-left: 3px solid var(--green);
+      padding: 10px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.5;
+      font-family: Arial, sans-serif;
+    }
+
+    .deal-box {
+      background: var(--gold);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .deal-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--green-dark); font-family: Arial, sans-serif; font-weight: bold; }
+    .deal-value { font-size: 0.9rem; font-weight: bold; color: var(--green-dark); font-family: Arial, sans-serif; margin-top: 3px; }
+
+    /* CORP STATS BAR */
+    .corp-stat-bar {
+      background: #4a0080;
+      color: white;
+      padding: 12px 24px;
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 600px) {
       .prospect-grid { grid-template-columns: 1fr; }
       .stats-bar { gap: 0; }
       .stat-item { padding: 8px 16px; }
       .stat-number { font-size: 1.4rem; }
       .header-title h1 { font-size: 1.1rem; }
+      .tab-btn { padding: 12px 14px; font-size: 0.8rem; }
     }
   </style>
 </head>
@@ -547,67 +653,106 @@
   </div>
 </header>
 
-<div class="stats-bar" id="stats-bar">
-  <div class="stat-item">
-    <div class="stat-number" id="stat-total">—</div>
-    <div class="stat-label">Total Prospects</div>
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('donors', this)">🏆 Major Gift Prospects</button>
+  <button class="tab-btn" onclick="switchTab('corporate', this)">🏢 Corporate Sponsorship Prospects</button>
+</div>
+
+<!-- ===== DONOR TAB ===== -->
+<div id="tab-donors" class="tab-panel active">
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item">
+      <div class="stat-number" id="stat-total">—</div>
+      <div class="stat-label">Total Prospects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-tier1">—</div>
+      <div class="stat-label">Tier 1 &gt;$25M</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-tier2">—</div>
+      <div class="stat-label">Tier 2 $10-25M</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-tier3">—</div>
+      <div class="stat-label">Tier 3 $5-10M</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-basketball">—</div>
+      <div class="stat-label">Basketball Prospects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-runs">—</div>
+      <div class="stat-label">Research Runs</div>
+    </div>
   </div>
-  <div class="stat-item">
-    <div class="stat-number" id="stat-tier1">—</div>
-    <div class="stat-label">Tier 1 &gt;$25M</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" id="stat-tier2">—</div>
-    <div class="stat-label">Tier 2 $10-25M</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" id="stat-tier3">—</div>
-    <div class="stat-label">Tier 3 $5-10M</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" id="stat-basketball">—</div>
-    <div class="stat-label">Basketball Prospects</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" id="stat-runs">—</div>
-    <div class="stat-label">Research Runs</div>
+
+  <div class="main-container">
+    <div class="controls">
+      <input type="text" class="search-box" id="search-input" placeholder="Search by name, company, location, industry..." oninput="filterProspects()" />
+      <button class="filter-btn all" onclick="setFilter('ALL', this)">All</button>
+      <button class="filter-btn tier1 inactive" onclick="setFilter('TIER_1_TRANSFORMATIONAL', this)">Tier 1: Transformational</button>
+      <button class="filter-btn tier2 inactive" onclick="setFilter('TIER_2_PRINCIPAL', this)">Tier 2: Principal</button>
+      <button class="filter-btn tier3 inactive" onclick="setFilter('TIER_3_MAJOR', this)">Tier 3: Major</button>
+      <button class="filter-btn basketball inactive" onclick="setFilter('BASKETBALL', this)">🏀 Men's Basketball</button>
+      <select class="sort-select" id="sort-select" onchange="sortProspects()">
+        <option value="tier">Sort: By Tier</option>
+        <option value="name">Sort: Name A-Z</option>
+        <option value="recent">Sort: Most Recent</option>
+        <option value="confidence">Sort: Confidence</option>
+      </select>
+    </div>
+    <div class="results-count" id="results-count"></div>
+    <div class="prospect-grid" id="prospect-grid">
+      <div class="loading-state"><div class="spinner"></div><p style="font-family:Arial;color:#999;">Loading prospect intelligence...</p></div>
+    </div>
   </div>
 </div>
 
-<div class="main-container">
-  <div class="controls">
-    <input
-      type="text"
-      class="search-box"
-      id="search-input"
-      placeholder="Search by name, company, location, industry..."
-      oninput="filterProspects()"
-    />
-    <button class="filter-btn all" onclick="setFilter('ALL', this)">All</button>
-    <button class="filter-btn tier1 inactive" onclick="setFilter('TIER_1_TRANSFORMATIONAL', this)">Tier 1: Transformational</button>
-    <button class="filter-btn tier2 inactive" onclick="setFilter('TIER_2_PRINCIPAL', this)">Tier 2: Principal</button>
-    <button class="filter-btn tier3 inactive" onclick="setFilter('TIER_3_MAJOR', this)">Tier 3: Major</button>
-    <button class="filter-btn basketball inactive" onclick="setFilter('BASKETBALL', this)">🏀 Men's Basketball</button>
-    <select class="sort-select" id="sort-select" onchange="sortProspects()">
-      <option value="tier">Sort: By Tier</option>
-      <option value="name">Sort: Name A-Z</option>
-      <option value="recent">Sort: Most Recent</option>
-      <option value="confidence">Sort: Confidence</option>
-    </select>
+<!-- ===== CORPORATE TAB ===== -->
+<div id="tab-corporate" class="tab-panel">
+  <div class="corp-stat-bar">
+    <div class="stat-item">
+      <div class="stat-number" id="corp-stat-total">—</div>
+      <div class="stat-label">Corporate Prospects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="corp-stat-naming">—</div>
+      <div class="stat-label">Naming Rights $5M+/yr</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="corp-stat-presenting">—</div>
+      <div class="stat-label">Presenting $1-5M/yr</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="corp-stat-premier">—</div>
+      <div class="stat-label">Premier $500K-1M/yr</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="corp-stat-basketball">—</div>
+      <div class="stat-label">Basketball Fits</div>
+    </div>
   </div>
 
-  <div class="results-count" id="results-count"></div>
-
-  <div class="prospect-grid" id="prospect-grid">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p style="font-family: Arial; color: #999;">Loading prospect intelligence...</p>
+  <div class="main-container">
+    <div class="controls">
+      <input type="text" class="search-box" id="corp-search-input" placeholder="Search by company, industry, leader, location..." oninput="filterCorporate()" />
+      <button class="filter-btn all" id="corp-filter-all" onclick="setCorpFilter('ALL', this)">All</button>
+      <button class="filter-btn tier1 inactive" onclick="setCorpFilter('NAMING_RIGHTS', this)">Naming Rights</button>
+      <button class="filter-btn tier2 inactive" onclick="setCorpFilter('PRESENTING_SPONSOR', this)">Presenting</button>
+      <button class="filter-btn tier3 inactive" onclick="setCorpFilter('PREMIER_PARTNER', this)">Premier</button>
+      <button class="filter-btn basketball inactive" onclick="setCorpFilter('BASKETBALL', this)">🏀 Basketball</button>
+    </div>
+    <div class="results-count" id="corp-results-count"></div>
+    <div class="prospect-grid" id="corp-grid">
+      <div class="loading-state"><div class="spinner"></div><p style="font-family:Arial;color:#999;">Loading corporate sponsorship intelligence...</p></div>
     </div>
   </div>
 </div>
 
 <footer>
-  <strong>CONFIDENTIAL</strong> &nbsp;·&nbsp; University of Oregon Athletics &nbsp;·&nbsp; Forever Ducks Major Gift Program &nbsp;·&nbsp;
+  <strong>CONFIDENTIAL</strong> &nbsp;·&nbsp; University of Oregon Athletics &nbsp;·&nbsp; Forever Ducks Major Gift &amp; Corporate Sponsorship Program &nbsp;·&nbsp;
   Data refreshed daily at 8:00 AM Pacific &nbsp;·&nbsp; For internal use only
 </footer>
 
@@ -879,7 +1024,6 @@ function updateStats(data) {
   document.getElementById('stat-tier3').textContent = data.tier_3_count || 0;
   document.getElementById('stat-basketball').textContent = (data.prospects || []).filter(p => p.basketball_prospect).length;
   document.getElementById('stat-runs').textContent = (data.run_history || []).length;
-
   if (data.last_updated) {
     const d = new Date(data.last_updated);
     document.getElementById('last-run-display').textContent =
@@ -888,18 +1032,183 @@ function updateStats(data) {
   document.getElementById('next-run-display').textContent = 'Next refresh: Daily at 8:00 AM Pacific';
 }
 
+/* ============ CORPORATE ============ */
+let allCorporate = [];
+let activeCorpFilter = 'ALL';
+
+const CORP_TIER_LABELS = {
+  'NAMING_RIGHTS':     'Naming Rights · $5M+/yr',
+  'PRESENTING_SPONSOR':'Presenting Sponsor · $1-5M/yr',
+  'PREMIER_PARTNER':   'Premier Partner · $500K-1M/yr',
+  'ASSOCIATE_PARTNER': 'Associate Partner · $100-500K/yr'
+};
+const CORP_HEADER_CLASS = {
+  'NAMING_RIGHTS':     'naming',
+  'PRESENTING_SPONSOR':'presenting',
+  'PREMIER_PARTNER':   'premier',
+  'ASSOCIATE_PARTNER': 'associate'
+};
+
+function buildCorpCard(p, idx) {
+  const tier = p.sponsorship_tier || 'ASSOCIATE_PARTNER';
+  const hClass = CORP_HEADER_CLASS[tier] || 'associate';
+  const tierLabel = CORP_TIER_LABELS[tier] || tier;
+  const isBball = p.basketball_fit === true;
+  const conf = p.confidence || 'MEDIUM';
+
+  return `
+    <div class="corp-card" data-tier="${tier}" data-basketball="${isBball}"
+         data-name="${escapeHtml(p.company_name)}"
+         data-text="${escapeHtml(JSON.stringify(p)).toLowerCase()}">
+      <div class="corp-header ${hClass}">
+        <div>
+          <div class="corp-company">${escapeHtml(p.company_name)}</div>
+          <div class="corp-leader">🎓 ${escapeHtml(p.uo_alumni_leader || '')} · ${escapeHtml(p.alumni_current_title || '')}</div>
+          ${isBball ? '<span class="bball-corp-badge">🏀 Men\'s Basketball Fit</span>' : ''}
+        </div>
+        <span class="corp-tier-badge">${escapeHtml(tierLabel)}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="deal-box">
+          <div class="deal-label">Recommended Sponsorship Package</div>
+          <div class="deal-value">${escapeHtml(p.recommended_deal_structure || '—')}</div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">🏭</div>
+          <div class="info-content">
+            <div class="info-label">Industry · Size · HQ</div>
+            <div class="info-value">${escapeHtml(p.company_type || '—')} · ${escapeHtml(p.company_size || '—')} · ${escapeHtml(p.company_hq || '—')}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">🎓</div>
+          <div class="info-content">
+            <div class="info-label">UO Alumni Leader</div>
+            <div class="info-value">${escapeHtml(p.uo_alumni_leader || '—')} — ${escapeHtml(p.alumni_uo_connection || '—')}</div>
+          </div>
+        </div>
+
+        <div class="value-prop">${escapeHtml(p.sponsorship_value_to_company || '—')}</div>
+
+        ${p.why_now ? `<div class="urgency-flag">${escapeHtml(p.why_now)}</div>` : ''}
+        ${isBball && p.basketball_fit_reason ? `<div class="info-row"><div class="info-icon">🏀</div><div class="info-content"><div class="info-label">Basketball Partnership Opportunity</div><div class="info-value">${escapeHtml(p.basketball_fit_reason)}</div></div></div>` : ''}
+
+        <button class="expand-btn" id="corp-expand-btn-${idx}" onclick="toggleCorpDetail(${idx})">▶ Show full details &amp; contact info</button>
+      </div>
+
+      <div class="detail-section" id="corp-detail-${idx}">
+        ${p.existing_sports_sponsorships ? `<div class="info-row"><div class="info-icon">🏟️</div><div class="info-content"><div class="info-label">Existing Sports Sponsorships</div><div class="info-value">${escapeHtml(p.existing_sports_sponsorships)}</div></div></div>` : ''}
+        ${p.existing_uo_relationship ? `<div class="info-row"><div class="info-icon">🏛️</div><div class="info-content"><div class="info-label">Existing UO Relationship</div><div class="info-value">${escapeHtml(p.existing_uo_relationship)}</div></div></div>` : ''}
+        ${p.engagement_angle ? `<div class="info-row"><div class="info-icon">💬</div><div class="info-content"><div class="info-label">Engagement Angle</div><div class="info-value">${escapeHtml(p.engagement_angle)}</div></div></div>` : ''}
+
+        ${(p.decision_maker_contact || p.company_phone || p.company_address || p.company_linkedin || p.company_website) ? `
+        <div style="background:#f0f4f0;border-radius:8px;padding:12px 14px;border:1px solid #c8dac8;">
+          <div class="info-label" style="margin-bottom:8px;color:#154734;font-weight:bold;">📋 CONTACT INTELLIGENCE</div>
+          ${p.decision_maker_contact ? `<div class="info-row"><div class="info-icon">👤</div><div class="info-content"><div class="info-label">Decision Maker Contact</div><div class="info-value">${escapeHtml(p.decision_maker_contact)}</div></div></div>` : ''}
+          ${p.company_phone ? `<div class="info-row"><div class="info-icon">📞</div><div class="info-content"><div class="info-label">Company Phone</div><div class="info-value">${escapeHtml(p.company_phone)}</div></div></div>` : ''}
+          ${p.company_address ? `<div class="info-row"><div class="info-icon">🏠</div><div class="info-content"><div class="info-label">HQ Address</div><div class="info-value">${escapeHtml(p.company_address)}</div></div></div>` : ''}
+          ${p.company_website ? `<div class="info-row"><div class="info-icon">🌐</div><div class="info-content"><div class="info-label">Website</div><div class="info-value"><a href="${escapeHtml(p.company_website)}" target="_blank" rel="noopener">${escapeHtml(p.company_website)}</a></div></div></div>` : ''}
+          ${p.company_linkedin ? `<div class="info-row"><div class="info-icon">🔗</div><div class="info-content"><div class="info-label">LinkedIn</div><div class="info-value">${escapeHtml(p.company_linkedin)}</div></div></div>` : ''}
+        </div>` : ''}
+
+        <div class="sources-list"><strong>Sources:</strong> ${buildSourceLinks(p.sources)}</div>
+        <button class="expand-btn" onclick="toggleCorpDetail(${idx})" style="margin-top:4px;">▲ Hide details</button>
+      </div>
+
+      <div class="card-footer">
+        <span class="confidence-badge confidence-${conf}">
+          ${conf === 'HIGH' ? '✓' : conf === 'MEDIUM' ? '~' : '?'} ${conf} Confidence
+        </span>
+        <span class="updated-date">Updated: ${escapeHtml(p.last_updated || '—')}</span>
+      </div>
+    </div>`;
+}
+
+function toggleCorpDetail(idx) {
+  const el = document.getElementById(`corp-detail-${idx}`);
+  const btn = document.getElementById(`corp-expand-btn-${idx}`);
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    if (btn) btn.textContent = '▶ Show full details & contact info';
+  } else {
+    el.classList.add('open');
+    if (btn) btn.textContent = '▼ Hide details';
+  }
+}
+
+function setCorpFilter(tier, btn) {
+  activeCorpFilter = tier;
+  document.querySelectorAll('#tab-corporate .filter-btn').forEach(b => b.classList.add('inactive'));
+  btn.classList.remove('inactive');
+  filterCorporate();
+}
+
+function filterCorporate() {
+  const query = document.getElementById('corp-search-input').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('#corp-grid .corp-card');
+  let visible = 0;
+  cards.forEach(card => {
+    const tier = card.dataset.tier;
+    const isBball = card.dataset.basketball === 'true';
+    const text = card.dataset.text;
+    const matchesTier = activeCorpFilter === 'ALL' || tier === activeCorpFilter || (activeCorpFilter === 'BASKETBALL' && isBball);
+    const matchesSearch = !query || text.includes(query);
+    if (matchesTier && matchesSearch) { card.style.display = ''; visible++; }
+    else card.style.display = 'none';
+  });
+  document.getElementById('corp-results-count').textContent = `Showing ${visible} of ${allCorporate.length} corporate prospects`;
+}
+
+function renderCorporate(corps) {
+  const grid = document.getElementById('corp-grid');
+  if (!corps || corps.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><h2>🏢 Corporate Research Launching Soon</h2><p>The daily corporate sponsorship research agent has not run yet. Results will appear here after the next scheduled run.</p></div>`;
+    document.getElementById('corp-results-count').textContent = 'No corporate prospects yet';
+    return;
+  }
+  grid.innerHTML = corps.map((p, i) => buildCorpCard(p, i)).join('');
+  document.getElementById('corp-results-count').textContent = `Showing ${corps.length} of ${corps.length} corporate prospects`;
+}
+
+function updateCorpStats(data) {
+  const corps = data.corporate_prospects || [];
+  document.getElementById('corp-stat-total').textContent = corps.length;
+  document.getElementById('corp-stat-naming').textContent = corps.filter(p => p.sponsorship_tier === 'NAMING_RIGHTS').length;
+  document.getElementById('corp-stat-presenting').textContent = corps.filter(p => p.sponsorship_tier === 'PRESENTING_SPONSOR').length;
+  document.getElementById('corp-stat-premier').textContent = corps.filter(p => p.sponsorship_tier === 'PREMIER_PARTNER').length;
+  document.getElementById('corp-stat-basketball').textContent = corps.filter(p => p.basketball_fit).length;
+}
+
+/* ============ TABS ============ */
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+/* ============ LOAD ============ */
 async function loadData() {
   try {
     const resp = await fetch('prospects.json?v=' + Date.now());
     if (!resp.ok) throw new Error('Not found');
     const data = await resp.json();
     allProspects = data.prospects || [];
+    allCorporate = data.corporate_prospects || [];
     updateStats(data);
     renderProspects(allProspects);
+    updateCorpStats(data);
+    renderCorporate(allCorporate);
   } catch (e) {
     allProspects = [];
+    allCorporate = [];
     updateStats({ total_prospects: 0, tier_1_count: 0, tier_2_count: 0, tier_3_count: 0, run_history: [] });
     renderProspects([]);
+    updateCorpStats({});
+    renderCorporate([]);
   }
 }
 
