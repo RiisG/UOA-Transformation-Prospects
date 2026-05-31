@@ -188,7 +188,32 @@
     .filter-btn.tier1 { background: var(--tier1); color: var(--white); border-color: var(--tier1); }
     .filter-btn.tier2 { background: var(--tier2); color: var(--white); border-color: var(--tier2); }
     .filter-btn.tier3 { background: var(--tier3); color: var(--white); border-color: var(--tier3); }
+    .filter-btn.basketball { background: #e65c00; color: var(--white); border-color: #e65c00; }
     .filter-btn.inactive { background: var(--white); color: var(--gray-mid); border-color: var(--gray); }
+
+    .basketball-badge {
+      display: inline-block;
+      background: #e65c00;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .no-uo-giving {
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: #2e7d32;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+    }
+    .no-uo-giving::before { content: "✓ "; }
     .filter-btn:hover { opacity: 0.85; }
 
     /* SORT */
@@ -540,6 +565,10 @@
     <div class="stat-label">Tier 3 $5-10M</div>
   </div>
   <div class="stat-item">
+    <div class="stat-number" id="stat-basketball">—</div>
+    <div class="stat-label">Basketball Prospects</div>
+  </div>
+  <div class="stat-item">
     <div class="stat-number" id="stat-runs">—</div>
     <div class="stat-label">Research Runs</div>
   </div>
@@ -558,6 +587,7 @@
     <button class="filter-btn tier1 inactive" onclick="setFilter('TIER_1_TRANSFORMATIONAL', this)">Tier 1: Transformational</button>
     <button class="filter-btn tier2 inactive" onclick="setFilter('TIER_2_PRINCIPAL', this)">Tier 2: Principal</button>
     <button class="filter-btn tier3 inactive" onclick="setFilter('TIER_3_MAJOR', this)">Tier 3: Major</button>
+    <button class="filter-btn basketball inactive" onclick="setFilter('BASKETBALL', this)">🏀 Men's Basketball</button>
     <select class="sort-select" id="sort-select" onchange="sortProspects()">
       <option value="tier">Sort: By Tier</option>
       <option value="name">Sort: Name A-Z</option>
@@ -622,12 +652,15 @@ function buildCard(p, idx) {
   const tierLabel = TIER_LABELS[tier] || tier;
   const conf = p.confidence || 'MEDIUM';
 
+  const isBasketball = p.basketball_prospect === true;
+
   return `
-    <div class="prospect-card" data-tier="${tier}" data-name="${escapeHtml(p.name)}" data-text="${escapeHtml(JSON.stringify(p)).toLowerCase()}">
+    <div class="prospect-card" data-tier="${tier}" data-name="${escapeHtml(p.name)}" data-basketball="${isBasketball}" data-text="${escapeHtml(JSON.stringify(p)).toLowerCase()}">
       <div class="card-header ${tierClass}">
         <div>
           <div class="card-name">${escapeHtml(p.name)}</div>
           <div class="card-role">${escapeHtml(p.current_role || '')}</div>
+          ${isBasketball ? '<span class="basketball-badge">🏀 Men\'s Basketball Prospect</span>' : ''}
         </div>
         <span class="tier-badge">${escapeHtml(tierLabel)}</span>
       </div>
@@ -675,6 +708,12 @@ function buildCard(p, idx) {
             <div class="info-value">${escapeHtml(p.recent_news || '—')}</div>
           </div>
         </div>
+
+        ${p.existing_uo_giving && p.existing_uo_giving.toLowerCase().includes('no known')
+          ? `<div class="no-uo-giving">No known UO Athletics giving — undiscovered prospect</div>`
+          : (p.existing_uo_giving ? `<div class="info-row"><div class="info-icon">🏛️</div><div class="info-content"><div class="info-label">Existing UO Giving</div><div class="info-value">${escapeHtml(p.existing_uo_giving)}</div></div></div>` : '')}
+
+        ${isBasketball && p.basketball_reason ? `<div class="info-row"><div class="info-icon">🏀</div><div class="info-content"><div class="info-label">Basketball Opportunity</div><div class="info-value">${escapeHtml(p.basketball_reason)}</div></div></div>` : ''}
 
         ${p.why_prospect ? `<div class="why-prospect">${escapeHtml(p.why_prospect)}</div>` : ''}
 
@@ -757,7 +796,8 @@ function filterProspects() {
     const text = card.dataset.text;
     const name = card.dataset.name.toLowerCase();
 
-    const matchesTier = activeFilter === 'ALL' || tier === activeFilter;
+    const isBasketball = card.dataset.basketball === 'true';
+    const matchesTier = activeFilter === 'ALL' || tier === activeFilter || (activeFilter === 'BASKETBALL' && isBasketball);
     const matchesSearch = !query || text.includes(query) || name.includes(query);
 
     if (matchesTier && matchesSearch) {
@@ -826,6 +866,7 @@ function updateStats(data) {
   document.getElementById('stat-tier1').textContent = data.tier_1_count || 0;
   document.getElementById('stat-tier2').textContent = data.tier_2_count || 0;
   document.getElementById('stat-tier3').textContent = data.tier_3_count || 0;
+  document.getElementById('stat-basketball').textContent = (data.prospects || []).filter(p => p.basketball_prospect).length;
   document.getElementById('stat-runs').textContent = (data.run_history || []).length;
 
   if (data.last_updated) {

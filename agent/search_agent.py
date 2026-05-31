@@ -15,27 +15,44 @@ PROSPECTS_FILE = Path(__file__).parent.parent / "docs" / "prospects.json"
 
 SYSTEM_PROMPT = """You are a senior philanthropic research analyst specializing in major gift
 identification for university athletics programs. You have deep expertise in wealth screening,
-donor identification, and prospect research for collegiate athletics. You are thorough, accurate,
-and always cite your sources."""
+donor identification, and prospect research for collegiate athletics. Your mission is to surface
+hidden, undiscovered philanthropic capacity — people who HAVE NOT yet made transformational gifts
+but absolutely could. You are thorough, accurate, and always cite your sources."""
 
-RESEARCH_PROMPT = """Your task today is to identify University of Oregon alumni and supporters
-who have the financial capacity to make a philanthropic gift of $5 million or more to
-University of Oregon Athletics (the Forever Ducks program).
+RESEARCH_PROMPT = """Your task is to identify UNDISCOVERED University of Oregon alumni and supporters
+who have the financial capacity to make a transformational philanthropic gift to University of Oregon
+Athletics (the Forever Ducks program) — but have NOT yet done so.
 
-Use web search extensively to research and find high-capacity prospects. Search for:
+CRITICAL FILTER: Do NOT include people already known as major UO Athletics donors (e.g. Phil Knight,
+Penny Knight, Bob Bellotti, Pat Kilkenny). Focus entirely on prospects with HIGH capacity who have
+NOT made a transformational gift to UO Athletics. We want to find people before anyone else does.
 
-1. University of Oregon alumni who appear on Forbes 400, Forbes richest lists, or state wealth rankings
-2. UO graduates who recently had major wealth events: company IPOs, acquisitions, executive appointments, real estate deals
-3. Known Oregon Ducks boosters or athletics donors with significant wealth
-4. Tech executives, finance leaders, real estate developers, and entrepreneurs who attended UO
-5. University of Oregon Foundation major donors or advisory board members
-6. Oregon alumni featured in business news, profiles, or philanthropy announcements
-7. Former UO athletes who went on to significant wealth (pro sports, business)
-8. Search terms like: "University of Oregon alumni" + "net worth", "UO Ducks donor",
-   "Oregon Ducks booster million", "University of Oregon graduate CEO",
-   "UO alumni philanthropist", "Oregon Ducks major gift"
+Use web search extensively. Dig deep. Search for:
 
-For EACH prospect you identify, research them thoroughly and provide this exact JSON structure:
+1. UO alumni on Forbes 400, state wealth rankings, or regional business journals who have NO known
+   UO Athletics giving history
+2. UO graduates who recently had major liquidity events (IPO, acquisition, exit, executive comp
+   disclosures) and have not yet been cultivated by UO Athletics
+3. Wealthy UO alumni who give to OTHER universities or causes (indicating philanthropic capacity)
+   but not UO Athletics — these are warm prospects being missed
+4. UO alumni in tech (Silicon Valley, Seattle, Austin), finance, private equity, real estate,
+   healthcare, and entertainment with significant accumulated wealth
+5. Former UO student-athletes who went on to professional careers in sports or business with
+   significant wealth — especially those NOT publicly connected to UO Athletics fundraising
+6. UO alumni who serve on corporate boards, appear in proxy filings, or hold large equity stakes
+7. Oregon-connected philanthropists who give to arts, education, or other causes but NOT UO Athletics
+8. Search: "University of Oregon" alumni site:linkedin.com CEO OR founder, "UO grad" OR "Oregon Ducks"
+   site:crunchbase.com, "University of Oregon alumni" Forbes, "graduated University of Oregon" acquisition
+
+SPECIAL CATEGORY — UO Men's Basketball:
+Also identify prospects with a specific connection or affinity for UO Men's Basketball who could
+make a transformational gift specifically to the basketball program. Search for:
+- Former UO Men's Basketball players with significant post-career wealth
+- Oregon alumni who are known basketball fans or have given to other basketball programs
+- Business leaders in basketball-heavy markets (Portland, LA, Bay Area, Chicago, NYC) with UO ties
+- Prospects who played basketball at UO or had family members who did
+
+For EACH prospect, conduct deep research and provide this exact JSON structure:
 
 {
   "name": "Full Name",
@@ -45,23 +62,27 @@ For EACH prospect you identify, research them thoroughly and provide this exact 
   "estimated_net_worth": "Best estimate with range e.g. $75M-$150M",
   "giving_capacity": "Estimated max philanthropic gift capacity for UO Athletics",
   "capacity_rating": "TIER_1_TRANSFORMATIONAL (>$25M), TIER_2_PRINCIPAL ($10-25M), or TIER_3_MAJOR ($5-10M)",
+  "basketball_prospect": true or false,
+  "basketball_reason": "Why this person is a strong Men's Basketball prospect, or null if not applicable",
   "wealth_sources": "How they built their wealth - company, industry, events",
   "recent_news": "Most important recent news about them from the last 12 months",
+  "existing_uo_giving": "Any known UO giving history — if none found, state 'No known UO Athletics giving identified'",
   "athletics_connection": "Any known connection to UO Athletics, sports giving, or stadium/facility gifts",
-  "philanthropy_history": "Known charitable giving, foundations, or other major gifts",
-  "why_prospect": "2-3 sentences on why this person is a strong UO Athletics prospect",
-  "engagement_angle": "Best approach or conversation opener for outreach",
+  "philanthropy_history": "Known charitable giving to OTHER institutions or causes — key signal of capacity",
+  "why_prospect": "2-3 sentences on why this person is a strong UNDISCOVERED UO Athletics prospect",
+  "engagement_angle": "Best approach or conversation opener for outreach — be specific",
   "urgency_flag": "Any time-sensitive wealth event or opportunity window",
   "sources": ["source1 title and URL", "source2 title and URL"],
   "last_updated": "YYYY-MM-DD",
   "confidence": "HIGH, MEDIUM, or LOW - confidence in the wealth/capacity estimate"
 }
 
-Find at least 10 distinct, well-researched prospects. Prioritize quality over quantity.
+Find at least 10 distinct, deeply researched prospects. Quality over quantity.
 Only include people with:
-- Clear University of Oregon connection (alumni, major donor, athletics booster, former athlete)
+- Clear University of Oregon connection (alumni, former athlete, family connection)
 - Estimated net worth of $25 million or more (capacity to give $5M+)
-- Verifiable information from news or public records
+- NO known history of transformational giving to UO Athletics
+- Verifiable information from news, public records, SEC filings, or credible sources
 
 Return ONLY a valid JSON array. No introduction, no explanation, just the JSON array starting with [ and ending with ]."""
 
@@ -194,13 +215,17 @@ def run_agent():
             p["capacity_rating"] = "TIER_2_PRINCIPAL"
         else:
             p["capacity_rating"] = "TIER_3_MAJOR"
+        if "basketball_prospect" not in p:
+            p["basketball_prospect"] = False
 
     all_prospects, run_entry = merge_and_save(new_prospects, existing_prospects, run_history)
 
+    basketball_count = sum(1 for p in all_prospects if p.get('basketball_prospect'))
     print(f"Run complete. {run_entry['added']} new, {run_entry['updated']} updated. Total: {run_entry['total_in_database']}")
     print(f"Tier 1 Transformational (>$25M capacity): {sum(1 for p in all_prospects if p.get('capacity_rating') == 'TIER_1_TRANSFORMATIONAL')}")
     print(f"Tier 2 Principal ($10-25M): {sum(1 for p in all_prospects if p.get('capacity_rating') == 'TIER_2_PRINCIPAL')}")
     print(f"Tier 3 Major ($5-10M): {sum(1 for p in all_prospects if p.get('capacity_rating') == 'TIER_3_MAJOR')}")
+    print(f"Men's Basketball Prospects: {basketball_count}")
 
 
 if __name__ == "__main__":
