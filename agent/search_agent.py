@@ -72,10 +72,22 @@ For EACH prospect, conduct deep research and provide this exact JSON structure:
   "why_prospect": "2-3 sentences on why this person is a strong UNDISCOVERED UO Athletics prospect",
   "engagement_angle": "Best approach or conversation opener for outreach — be specific",
   "urgency_flag": "Any time-sensitive wealth event or opportunity window",
+  "contact_email": "Best publicly available or professionally discoverable email address, or null",
+  "contact_phone": "Best publicly available phone number (office, cell if known), or null",
+  "contact_address": "Best known business or home address from public records, or null",
+  "contact_linkedin": "LinkedIn profile URL if found, or null",
+  "contact_assistant": "Name and contact info for their executive assistant or office, if found",
   "sources": ["source1 title and URL", "source2 title and URL"],
   "last_updated": "YYYY-MM-DD",
   "confidence": "HIGH, MEDIUM, or LOW - confidence in the wealth/capacity estimate"
 }
+
+For EACH prospect, also search specifically for their contact information:
+- Search "[name] email address" "[name] contact" "[name] office phone"
+- Search their company website for executive contact pages
+- Search LinkedIn for their profile URL
+- Check SEC filings, corporate proxy statements for business addresses
+- Search county property records for home address if publicly available
 
 Find at least 10 distinct, deeply researched prospects. Quality over quantity.
 Only include people with:

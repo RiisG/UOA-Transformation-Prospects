@@ -721,7 +721,7 @@ function buildCard(p, idx) {
           ? `<div class="urgency-flag">${escapeHtml(p.urgency_flag)}</div>`
           : ''}
 
-        <button class="expand-btn" onclick="toggleDetail(${idx})">▶ Show full details</button>
+        <button class="expand-btn" id="expand-btn-${idx}" onclick="toggleDetail(${idx})">▶ Show full details &amp; contact info</button>
       </div>
 
       <div class="detail-section" id="detail-${idx}">
@@ -752,9 +752,20 @@ function buildCard(p, idx) {
           </div>
         </div>` : ''}
 
+        ${(p.contact_email || p.contact_phone || p.contact_address || p.contact_linkedin || p.contact_assistant) ? `
+        <div style="background:#f0f4f0;border-radius:8px;padding:12px 14px;border:1px solid #c8dac8;">
+          <div class="info-label" style="margin-bottom:8px;color:#154734;font-weight:bold;">📋 CONTACT INTELLIGENCE</div>
+          ${p.contact_email ? `<div class="info-row"><div class="info-icon">✉️</div><div class="info-content"><div class="info-label">Email</div><div class="info-value">${escapeHtml(p.contact_email)}</div></div></div>` : ''}
+          ${p.contact_phone ? `<div class="info-row"><div class="info-icon">📱</div><div class="info-content"><div class="info-label">Phone</div><div class="info-value">${escapeHtml(p.contact_phone)}</div></div></div>` : ''}
+          ${p.contact_address ? `<div class="info-row"><div class="info-icon">🏠</div><div class="info-content"><div class="info-label">Address</div><div class="info-value">${escapeHtml(p.contact_address)}</div></div></div>` : ''}
+          ${p.contact_linkedin ? `<div class="info-row"><div class="info-icon">🔗</div><div class="info-content"><div class="info-label">LinkedIn</div><div class="info-value">${escapeHtml(p.contact_linkedin)}</div></div></div>` : ''}
+          ${p.contact_assistant ? `<div class="info-row"><div class="info-icon">👤</div><div class="info-content"><div class="info-label">Assistant / Office Contact</div><div class="info-value">${escapeHtml(p.contact_assistant)}</div></div></div>` : ''}
+        </div>` : ''}
+
         <div class="sources-list">
           <strong>Sources:</strong> ${buildSourceLinks(p.sources)}
         </div>
+        <button class="expand-btn" onclick="toggleDetail(${idx})" style="margin-top:4px;">▲ Hide details</button>
       </div>
 
       <div class="card-footer">
@@ -769,13 +780,13 @@ function buildCard(p, idx) {
 
 function toggleDetail(idx) {
   const el = document.getElementById(`detail-${idx}`);
-  const btn = el.previousElementSibling;
+  const topBtn = document.getElementById(`expand-btn-${idx}`);
   if (el.classList.contains('open')) {
     el.classList.remove('open');
-    btn.textContent = '▶ Show full details';
+    if (topBtn) topBtn.textContent = '▶ Show full details & contact info';
   } else {
     el.classList.add('open');
-    btn.textContent = '▼ Hide details';
+    if (topBtn) topBtn.textContent = '▼ Hide details';
   }
 }
 
