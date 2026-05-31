@@ -7,6 +7,7 @@ Runs daily to find University of Oregon alumni with $5M+ philanthropic capacity.
 import anthropic
 import json
 import os
+import random
 import sys
 from datetime import datetime, date
 from pathlib import Path
@@ -170,7 +171,20 @@ def run_agent():
     existing_prospects, run_history = load_existing()
     existing_names = [p["name"] for p in existing_prospects]
 
-    prompt = RESEARCH_PROMPT
+    # Rotate search focus each run to find different prospect pools
+    search_angles = [
+        "Focus especially on UO alumni in tech and venture capital — Silicon Valley, Seattle, Austin. Search AngelList, Crunchbase, TechCrunch for UO founders and executives.",
+        "Focus especially on UO alumni in finance, private equity, hedge funds, and investment banking. Search for UO graduates at top financial firms.",
+        "Focus especially on former UO athletes — football, track, basketball, baseball — who built wealth after their playing careers in business, media, or entertainment.",
+        "Focus especially on UO alumni in real estate development, construction, and property investment across the Pacific Northwest and nationally.",
+        "Focus especially on UO alumni who give to OTHER universities (Stanford, Oregon State, USC, etc.) or have established their own foundations — they have proven philanthropic capacity.",
+        "Focus especially on UO alumni in healthcare, biotech, pharmaceuticals, and medical devices.",
+        "Focus especially on UO alumni in media, entertainment, sports business, and gaming.",
+        "Focus especially on UO alumni in retail, consumer brands, food and beverage.",
+    ]
+    angle = random.choice(search_angles)
+
+    prompt = RESEARCH_PROMPT + f"\n\nTODAY'S SEARCH FOCUS: {angle}"
     if existing_names:
         avoid_list = ", ".join(existing_names[:30])
         prompt += f"\n\nNOTE: The following prospects are already in the database. Find NEW people not on this list: {avoid_list}"
